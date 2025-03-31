@@ -1,0 +1,49 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// Developed with the assistance of Copilot
+// © isarab
+
+//@version=5
+indicator("ProfitPivot", overlay=true)
+
+// Constant default for user input
+inputUnitCost = input.float(title="Unit Cost", defval=0.0) // Default constant value
+// Dynamically set unit cost to the previous bar's close if inputUnitCost is unchanged
+unitCost = na(inputUnitCost) or inputUnitCost == 0.0 ? close[1] : inputUnitCost
+
+// Latest price of the stock
+latestPrice = close
+
+// Calculate differences
+priceDifference = latestPrice - unitCost
+percentageDifference = (priceDifference / unitCost) * 100
+
+// Color logic for numbers
+priceColor = priceDifference > 0 ? color.green : (priceDifference == 0 ? color.white : color.red)
+percentageColor = percentageDifference > 0 ? color.green : (percentageDifference == 0 ? color.white : color.red)
+
+// Sign logic for absolute and percentage label displays
+signA = " "
+signP = " "
+if priceDifference <= -0.16
+    signA := " "
+    signP := " "
+else if priceDifference <= -0.0050
+    signA := " "
+    signP := " -"
+else if priceDifference > 0.00
+    signA := " +"
+    signP := " +"
+
+// Display results only on the last bar
+if bar_index == last_bar_index
+    label.new(bar_index, latestPrice, 
+              "Cost:" + str.tostring(unitCost, "#.##") +
+              signA + str.tostring(priceDifference, "#.##") +
+              signP + str.tostring(percentageDifference, "#.##") + "%",
+              color=color.new(color.gray, 90),
+              textcolor=color.rgb(130, 131, 134),
+              style=label.style_circle)
+
+// Add dynamic plots for legend
+plot(priceDifference, title="Delta", color=priceColor)
+plot(percentageDifference, title="%", color=percentageColor)
