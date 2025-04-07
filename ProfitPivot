@@ -1,12 +1,12 @@
 // This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
-// Developed with the assistance of Copilot
-// © isarab
+// Developed with assistance of Copilot. Build 1.1.0 © isarab
 
-//@version=5
-indicator("ProfitPivot", overlay=true)
+//@version=6
+indicator('ProfitPivot', overlay = true)
 
 // Constant default for user input
-inputUnitCost = input.float(title="Unit Cost", defval=0.0) // Default constant value
+inputUnitCost = input.float(title = 'Unit Cost', defval = 0.0) // Default constant value
+
 // Dynamically set unit cost to the previous bar's close if inputUnitCost is unchanged
 unitCost = na(inputUnitCost) or inputUnitCost == 0.0 ? close[1] : inputUnitCost
 
@@ -15,35 +15,44 @@ latestPrice = close
 
 // Calculate differences
 priceDifference = latestPrice - unitCost
-percentageDifference = (priceDifference / unitCost) * 100
+percentageDifference = priceDifference / unitCost * 100
 
 // Color logic for numbers
-priceColor = priceDifference > 0 ? color.green : (priceDifference == 0 ? color.white : color.red)
-percentageColor = percentageDifference > 0 ? color.green : (percentageDifference == 0 ? color.white : color.red)
+priceColor = priceDifference > 0 ? color.green : priceDifference == 0 ? color.white : color.red
+percentageColor = percentageDifference > 0 ? color.green : percentageDifference == 0 ? color.white : color.red
 
-// Sign logic for absolute and percentage label displays
-signA = " "
-signP = " "
-if priceDifference <= -0.16
-    signA := " "
-    signP := " "
-else if priceDifference <= -0.0050
-    signA := " "
-    signP := " -"
-else if priceDifference > 0.00
-    signA := " +"
-    signP := " +"
+// Define a precision level for rounding
+precision = 2
+
+// Round values to the desired precision
+roundedPriceDiff = math.round(priceDifference, precision)
+roundedPercentageDiff = math.round(percentageDifference, precision)
+
+// Define signs with default values
+signA = ' '
+signP = ' '
+if roundedPriceDiff > 0
+    signA := ' +'
+    signA
+if roundedPriceDiff == 0
+    signA := ' '
+    signA
+if roundedPriceDiff < 0
+    signA := ' ' // No manual sign for negatives
+    signA
+if roundedPercentageDiff > 0
+    signP := ' +'
+    signP
+if roundedPercentageDiff == 0
+    signP := ' '
+    signP
+if roundedPercentageDiff < 0
+    signP := ' ' // No manual sign for negatives
+    signP
 
 // Display results only on the last bar
-if bar_index == last_bar_index
-    label.new(bar_index, latestPrice, 
-              "Cost:" + str.tostring(unitCost, "#.##") +
-              signA + str.tostring(priceDifference, "#.##") +
-              signP + str.tostring(percentageDifference, "#.##") + "%",
-              color=color.new(color.gray, 90),
-              textcolor=color.rgb(130, 131, 134),
-              style=label.style_circle)
-
-// Add dynamic plots for legend
-plot(priceDifference, title="Delta", color=priceColor)
-plot(percentageDifference, title="%", color=percentageColor)
+var labelCreated = false
+if bar_index == last_bar_index and not labelCreated
+    label.new(bar_index, latestPrice, 'Cost:' + str.tostring(unitCost, '#.##') + signA + str.tostring(priceDifference, '#.##') + signP + str.tostring(percentageDifference, '#.##') + '%', color = color.new(color.gray, 90), textcolor = color.rgb(130, 131, 134), style = label.style_circle)
+    labelCreated := true
+    labelCreated
