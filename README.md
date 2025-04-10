@@ -8,3 +8,15 @@ ProfitPivot is developed by @isarab with the assistance of Copilot. It is licens
 Categories: Pivot Points and Levels; Sentiment; Portfolio management
 
 Tags: dynamic; profit-level
+
+## Build 1.1.0
+20250407
+### Changes
+1. Converted to @version=6.
+2. Delta and % line plots have been removed.
+3. Information label now appears only on the last bar.
+4. Fixed double negative signs on the label.
+### Known Issues
+1. Persistent issue: inconsistent carried over of Unit Costs to different symbols and time frames.
+### Wish List
+1. Calculate average unit cost from multiple buys of the asset.
